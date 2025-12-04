@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <!-- Background with soft pink gradient -->
+  <defs>
+    <linearGradient id="pinkGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#E8B4B8;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#D4A5A9;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <!-- Background circle -->
+  <circle cx="256" cy="256" r="254" fill="url(#pinkGradient)" stroke="#fff" stroke-width="2"/>
+
+  <!-- Ballet wrap icon simplified -->
+  <g transform="translate(256, 256)">
+    <!-- Ballet wrap silhouette -->
+    <path d="M -76.8 -25.6
+             C -76.8 -76.8, -25.6 -102.4, 0 -102.4
+             C 25.6 -102.4, 76.8 -76.8, 76.8 -25.6
+             L 61.44 25.6
+             C 40.96 40.96, 10.24 51.2, 0 51.2
+             C -10.24 51.2, -40.96 40.96, -61.44 25.6
+             Z"
+          fill="#fff" opacity="0.9"/>
+
+    <!-- Flare pants icon -->
+    <ellipse cx="0" cy="76.8" rx="61.44" ry="40.96" fill="#fff" opacity="0.9"/>
+
+    <!-- Small decorative element -->
+    <circle cx="0" cy="-25.6" r="10.24" fill="#fff"/>
+  </g>
+
+  <!-- Brand text for larger icons -->
+  
+  <text x="256" y="502" font-family="Arial, sans-serif" font-size="40.96" font-weight="bold" fill="#fff" text-anchor="middle">
+    Pink Pilates
+  </text>
+  
+</svg>

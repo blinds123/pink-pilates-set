@@ -1,54 +1,97 @@
-// Advanced Service Worker for Maximum Performance
-// Implements aggressive caching strategies for sub-300ms performance
+// PWA Service Worker for Pink Pilates Set
+// Progressive Web App with offline functionality and smart caching
 
-const CACHE_NAME = 'auralo-v1.0.0';
-const STATIC_CACHE = 'auralo-static-v1';
-const DYNAMIC_CACHE = 'auralo-dynamic-v1';
-const IMAGE_CACHE = 'auralo-images-v1';
+const CACHE_VERSION = '2.0.0';
+const CACHE_NAME = `pink-pilates-v${CACHE_VERSION}`;
+const STATIC_CACHE = `pink-pilates-static-v${CACHE_VERSION}`;
+const DYNAMIC_CACHE = `pink-pilates-dynamic-v${CACHE_VERSION}`;
+const IMAGE_CACHE = `pink-pilates-images-v${CACHE_VERSION}`;
+const RUNTIME_CACHE = `pink-pilates-runtime-v${CACHE_VERSION}`;
 
 // Critical assets to cache immediately
 const CRITICAL_ASSETS = [
   '/',
-  '/maximum-performance.html',
-  '/ultra-fast.html'
+  '/index.html',
+  '/manifest.json',
+  '/sw.js'
+];
+
+// Static assets to cache
+const STATIC_ASSETS = [
+  // Add CSS and JS files when they exist
+  '/styles.css',
+  '/app.js',
+  // Add images from manifest
+  '/images/icons/icon-192x192.png',
+  '/images/icons/icon-512x512.png',
+  // Add product images
+  '/images/product/product-01.jpeg'
 ];
 
 // Images to cache with stale-while-revalidate
 const IMAGE_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.webp', '.avif', '.svg'];
 
-// Install event - Cache critical assets
+// Install event - Cache critical assets for PWA
 self.addEventListener('install', event => {
-  console.log('Service Worker: Installing...');
+  console.log(`Service Worker: Installing v${CACHE_VERSION}...`);
 
   event.waitUntil(
     caches.open(STATIC_CACHE)
       .then(cache => {
         console.log('Service Worker: Caching critical assets');
-        return cache.addAll(CRITICAL_ASSETS);
+        // Only cache files that exist to prevent install failures
+        return Promise.allSettled(
+          CRITICAL_ASSETS.map(asset =>
+            cache.add(asset).catch(err => {
+              console.warn(`Failed to cache ${asset}:`, err);
+              return Promise.resolve();
+            })
+          )
+        );
       })
-      .then(() => self.skipWaiting())
+      .then(() => {
+        console.log('Service Worker: Critical assets cached successfully');
+        return self.skipWaiting();
+      })
+      .catch(err => {
+        console.error('Service Worker: Install failed:', err);
+      })
   );
 });
 
-// Activate event - Clean up old caches
+// Activate event - Clean up old caches and claim clients for PWA
 self.addEventListener('activate', event => {
-  console.log('Service Worker: Activating...');
+  console.log(`Service Worker: Activating v${CACHE_VERSION}...`);
 
   event.waitUntil(
     caches.keys()
       .then(cacheNames => {
+        const currentCaches = [STATIC_CACHE, DYNAMIC_CACHE, IMAGE_CACHE, RUNTIME_CACHE];
+
         return Promise.all(
           cacheNames.map(cacheName => {
-            if (cacheName !== STATIC_CACHE &&
-                cacheName !== DYNAMIC_CACHE &&
-                cacheName !== IMAGE_CACHE) {
+            if (!currentCaches.includes(cacheName)) {
               console.log('Service Worker: Removing old cache', cacheName);
               return caches.delete(cacheName);
             }
           })
         );
       })
-      .then(() => self.clients.claim())
+      .then(() => {
+        console.log('Service Worker: Old caches cleaned up');
+        return self.clients.claim();
+      })
+      .then(() => {
+        // Notify all clients about the update
+        return self.clients.matchAll().then(clients => {
+          clients.forEach(client => {
+            client.postMessage({
+              type: 'SERVICE_WORKER_UPDATED',
+              version: CACHE_VERSION
+            });
+          });
+        });
+      })
   );
 });
 
@@ -331,36 +374,195 @@ async function doBackgroundSync() {
   console.log('Service Worker: Performing background sync operations');
 }
 
-// Handle push notifications
+// Enhanced Push Notifications for Pink Pilates Set
 self.addEventListener('push', event => {
-  const options = {
-    body: event.data ? event.data.text() : 'New update available!',
-    icon: '/images/icon-192x192.png',
-    badge: '/images/badge-72x72.png',
-    tag: 'auralo-notification',
+  console.log('Service Worker: Push event received');
+
+  let pushData = {
+    title: 'Pink Pilates Set',
+    body: 'New updates available!',
+    icon: '/images/icons/icon-192x192.png',
+    badge: '/images/icons/icon-72x72.png',
+    tag: 'pink-pilates-notification',
+    requireInteraction: false,
     actions: [
       {
+        action: 'shop',
+        title: 'Shop Now',
+        icon: '/images/icons/icon-96x96.png'
+      },
+      {
         action: 'view',
-        title: 'View Product',
-        icon: '/images/action-view.png'
+        title: 'View Details',
+        icon: '/images/icons/icon-96x96.png'
       }
     ]
   };
 
+  // Parse push data if provided
+  if (event.data) {
+    try {
+      const data = event.data.json();
+      pushData = { ...pushData, ...data };
+    } catch (e) {
+      pushData.body = event.data.text() || pushData.body;
+    }
+  }
+
   event.waitUntil(
-    self.registration.showNotification('Auralo', options)
+    self.registration.showNotification(pushData.title, pushData)
   );
 });
 
 // Handle notification clicks
 self.addEventListener('notificationclick', event => {
+  console.log('Service Worker: Notification click received', event.action);
+
   event.notification.close();
 
-  if (event.action === 'view') {
-    event.waitUntil(
-      clients.openWindow('/maximum-performance.html')
-    );
+  const urlMap = {
+    'shop': '/#product-hero',
+    'view': '/#testimonials',
+    'default': '/'
+  };
+
+  const targetUrl = urlMap[event.action] || urlMap['default'];
+
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true })
+      .then(clientList => {
+        // Focus existing window if available
+        for (const client of clientList) {
+          if (client.url.includes(targetUrl) && 'focus' in client) {
+            return client.focus();
+          }
+        }
+        // Open new window
+        if (clients.openWindow) {
+          return clients.openWindow(targetUrl);
+        }
+      })
+  );
+});
+
+// Enhanced Background Sync
+self.addEventListener('sync', event => {
+  console.log('Service Worker: Background sync triggered', event.tag);
+
+  if (event.tag === 'background-sync-forms') {
+    event.waitUntil(handleFormSync());
+  } else if (event.tag === 'background-sync-analytics') {
+    event.waitUntil(handleAnalyticsSync());
+  } else if (event.tag === 'background-sync-updates') {
+    event.waitUntil(handleContentSync());
   }
 });
 
-console.log('Service Worker: Advanced caching strategies loaded');
+// Handle form submissions when offline
+async function handleFormSync() {
+  const formData = await getStoredFormData();
+
+  for (const data of formData) {
+    try {
+      const response = await fetch(data.url, {
+        method: data.method,
+        headers: data.headers,
+        body: data.body
+      });
+
+      if (response.ok) {
+        await removeStoredFormData(data.id);
+        console.log('Background sync: Form submitted successfully');
+      }
+    } catch (error) {
+      console.error('Background sync: Form submission failed', error);
+    }
+  }
+}
+
+// Handle analytics data when offline
+async function handleAnalyticsSync() {
+  const analyticsData = await getStoredAnalyticsData();
+
+  for (const data of analyticsData) {
+    try {
+      await fetch('/api/analytics', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+
+      await removeStoredAnalyticsData(data.id);
+      console.log('Background sync: Analytics sent successfully');
+    } catch (error) {
+      console.error('Background sync: Analytics failed', error);
+    }
+  }
+}
+
+// Handle content updates
+async function handleContentSync() {
+  try {
+    // Check for updates to critical content
+    const response = await fetch('/api/content-updates');
+
+    if (response.ok) {
+      const updates = await response.json();
+
+      for (const update of updates) {
+        if (update.type === 'product-price') {
+          await updateCachedContent(update.url, update.data);
+        }
+      }
+
+      // Notify clients about updates
+      const clients = await clients.matchAll();
+      clients.forEach(client => {
+        client.postMessage({
+          type: 'CONTENT_UPDATED',
+          updates: updates
+        });
+      });
+    }
+  } catch (error) {
+    console.error('Background sync: Content update failed', error);
+  }
+}
+
+// Helper functions for offline storage
+async function getStoredFormData() {
+  // In a real implementation, this would use IndexedDB
+  return [];
+}
+
+async function removeStoredFormData(id) {
+  // Remove form data from IndexedDB
+}
+
+async function getStoredAnalyticsData() {
+  // In a real implementation, this would use IndexedDB
+  return [];
+}
+
+async function removeStoredAnalyticsData(id) {
+  // Remove analytics data from IndexedDB
+}
+
+async function updateCachedContent(url, data) {
+  const cache = await caches.open(DYNAMIC_CACHE);
+  const response = new Response(JSON.stringify(data), {
+    headers: { 'Content-Type': 'application/json' }
+  });
+  await cache.put(url, response);
+}
+
+// Periodic Background Sync (Chrome 80+)
+if ('periodicSync' in self.registration) {
+  self.addEventListener('periodicsync', event => {
+    if (event.tag === 'daily-content-update') {
+      event.waitUntil(handleContentSync());
+    }
+  });
+}
+
+console.log(`Service Worker: Pink Pilates PWA v${CACHE_VERSION} loaded successfully`);

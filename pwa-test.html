@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PWA Test - Pink Pilates Set</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+            background: #fdf5f6;
+        }
+        .header {
+            background: #E8B4B8;
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .status {
+            padding: 10px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-weight: 600;
+        }
+        .status.pass {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.fail {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        button {
+            background: #E8B4B8;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #D4A5A9;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .test-results {
+            margin-top: 20px;
+        }
+        .cache-list {
+            max-height: 200px;
+            overflow-y: auto;
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .feature-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .feature-icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🎀 PWA Test Dashboard</h1>
+        <p>Pink Pilates Set - Progressive Web App Testing</p>
+    </div>
+
+    <div class="test-section">
+        <h2>🔍 PWA Compatibility Check</h2>
+        <div id="compatibility-results"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>⚙️ Service Worker Status</h2>
+        <div id="sw-status"></div>
+        <button onclick="testServiceWorker()">Test Service Worker</button>
+        <button onclick="clearCache()">Clear All Caches</button>
+    </div>
+
+    <div class="test-section">
+        <h2>📲 Installation Status</h2>
+        <div id="install-status"></div>
+        <button onclick="testInstallation()">Test Install Prompt</button>
+        <button onclick="triggerInstall()">Trigger Install</button>
+    </div>
+
+    <div class="test-section">
+        <h2>📱 Feature Detection</h2>
+        <div class="feature-grid" id="feature-grid"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>💾 Cache Information</h2>
+        <div id="cache-info"></div>
+        <button onclick="showCacheContents()">Show Cache Contents</button>
+    </div>
+
+    <div class="test-section">
+        <h2>🔔 Notification Test</h2>
+        <div id="notification-status"></div>
+        <button onclick="testNotification()">Test Notification</button>
+        <button onclick="requestNotificationPermission()">Request Permission</button>
+    </div>
+
+    <div class="test-section">
+        <h2>🌐 Connectivity</h2>
+        <div id="connectivity-info"></div>
+        <button onclick="simulateOffline()">Simulate Offline</button>
+    </div>
+
+    <script>
+        // PWA Test Suite
+        class PWATester {
+            constructor() {
+                this.results = {};
+                this.init();
+            }
+
+            init() {
+                this.checkCompatibility();
+                this.checkServiceWorker();
+                this.checkInstallationStatus();
+                this.checkFeatures();
+                this.checkConnectivity();
+                this.setupEventListeners();
+            }
+
+            checkCompatibility() {
+                const container = document.getElementById('compatibility-results');
+                const checks = [
+                    { name: 'Service Workers', test: 'serviceWorker' in navigator },
+                    { name: 'Web App Manifest', test: 'onbeforeinstallprompt' in window || 'manifest' in document.querySelector('link[rel="manifest"]') },
+                    { name: 'HTTPS', test: location.protocol === 'https:' || location.hostname === 'localhost' },
+                    { name: 'Push Notifications', test: 'Notification' in window && 'PushManager' in window },
+                    { name: 'Background Sync', test: 'serviceWorker' in navigator && 'sync' in window.ServiceWorkerRegistration.prototype },
+                    { name: 'Cache API', test: 'caches' in window },
+                    { name: 'IndexedDB', test: 'indexedDB' in window },
+                    { name: 'Online/Offline Events', test: 'ononline' in window && 'onoffline' in window }
+                ];
+
+                let html = '';
+                checks.forEach(check => {
+                    const status = check.test ? 'pass' : 'fail';
+                    const icon = check.test ? '✅' : '❌';
+                    html += `
+                        <div class="status ${status}">
+                            ${icon} ${check.name}: ${check.test ? 'Supported' : 'Not Supported'}
+                        </div>
+                    `;
+                    this.results[check.name.toLowerCase().replace(/\s+/g, '_')] = check.test;
+                });
+
+                container.innerHTML = html;
+            }
+
+            async checkServiceWorker() {
+                const container = document.getElementById('sw-status');
+
+                if ('serviceWorker' in navigator) {
+                    try {
+                        const registration = await navigator.serviceWorker.getRegistration();
+                        if (registration) {
+                            const sw = registration.active || registration.waiting || registration.installing;
+                            container.innerHTML = `
+                                <div class="status pass">
+                                    ✅ Service Worker Registered: ${registration.scope}
+                                </div>
+                                <div class="status info">
+                                    📊 SW State: ${sw ? sw.state : 'Unknown'}
+                                </div>
+                            `;
+                            this.results.service_worker_registered = true;
+                        } else {
+                            container.innerHTML = `
+                                <div class="status fail">
+                                    ❌ No Service Worker Registration Found
+                                </div>
+                            `;
+                            this.results.service_worker_registered = false;
+                        }
+                    } catch (error) {
+                        container.innerHTML = `
+                            <div class="status fail">
+                                ❌ Service Worker Error: ${error.message}
+                            </div>
+                        `;
+                    }
+                } else {
+                    container.innerHTML = `
+                        <div class="status fail">
+                            ❌ Service Workers Not Supported
+                        </div>
+                    `;
+                }
+            }
+
+            checkInstallationStatus() {
+                const container = document.getElementById('install-status');
+                const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+                const isIOSStandalone = window.navigator.standalone === true;
+                const isInstalled = isStandalone || isIOSStandalone;
+
+                container.innerHTML = `
+                    <div class="status ${isInstalled ? 'pass' : 'info'}">
+                        📱 App Mode: ${isInstalled ? 'Installed (Standalone)' : 'Browser'}
+                    </div>
+                    <div class="status info">
+                        🖥️ Display Mode: ${getComputedStyle(document.documentElement).getPropertyValue('--display-mode') || 'browser'}
+                    </div>
+                    <div class="status info">
+                        📱 User Agent: ${navigator.userAgent.includes('iPhone') ? 'iOS' : 'Desktop/Android'}
+                    </div>
+                `;
+
+                this.results.app_installed = isInstalled;
+            }
+
+            checkFeatures() {
+                const container = document.getElementById('feature-grid');
+                const features = [
+                    { icon: '🔄', name: 'Background Sync', supported: this.results.background_sync },
+                    { icon: '🔔', name: 'Push Notifications', supported: this.results.push_notifications },
+                    { icon: '💾', name: 'Offline Storage', supported: this.results.indexeddb },
+                    { icon: '📡', name: 'Service Worker', supported: this.results.service_workers },
+                    { icon: '📱', name: 'Installable', supported: this.results.web_app_manifest },
+                    { icon: '🌐', name: 'HTTPS Ready', supported: this.results.https }
+                ];
+
+                let html = '';
+                features.forEach(feature => {
+                    const statusClass = feature.supported ? 'pass' : 'fail';
+                    html += `
+                        <div class="feature-card">
+                            <div class="feature-icon">${feature.icon}</div>
+                            <h3>${feature.name}</h3>
+                            <div class="status ${statusClass}" style="margin: 10px 0;">
+                                ${feature.supported ? '✅ Available' : '❌ Not Available'}
+                            </div>
+                        </div>
+                    `;
+                });
+
+                container.innerHTML = html;
+            }
+
+            async checkConnectivity() {
+                const container = document.getElementById('connectivity-info');
+                const isOnline = navigator.onLine;
+                const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+
+                let html = `
+                    <div class="status ${isOnline ? 'pass' : 'fail'}">
+                        🌐 Status: ${isOnline ? 'Online' : 'Offline'}
+                    </div>
+                `;
+
+                if (connection) {
+                    html += `
+                        <div class="status info">
+                            📶 Connection: ${connection.effectiveType || 'Unknown'}
+                        </div>
+                    `;
+                }
+
+                container.innerHTML = html;
+            }
+
+            async testServiceWorker() {
+                await this.checkServiceWorker();
+                this.showAlert('Service Worker test completed!', 'info');
+            }
+
+            async clearCache() {
+                if ('caches' in window) {
+                    try {
+                        const cacheNames = await caches.keys();
+                        await Promise.all(cacheNames.map(name => caches.delete(name)));
+                        this.showAlert('All caches cleared successfully!', 'pass');
+                        this.showCacheContents();
+                    } catch (error) {
+                        this.showAlert('Failed to clear caches: ' + error.message, 'fail');
+                    }
+                }
+            }
+
+            async showCacheContents() {
+                const container = document.getElementById('cache-info');
+
+                if ('caches' in window) {
+                    try {
+                        const cacheNames = await caches.keys();
+                        let html = `<div class="status info">📦 Found ${cacheNames.length} caches:</div>`;
+
+                        for (const name of cacheNames) {
+                            const cache = await caches.open(name);
+                            const keys = await cache.keys();
+                            html += `
+                                <div class="status info">
+                                    ${name}: ${keys.length} items
+                                </div>
+                            `;
+                        }
+
+                        container.innerHTML = html;
+                    } catch (error) {
+                        container.innerHTML = `<div class="status fail">❌ Error reading caches: ${error.message}</div>`;
+                    }
+                } else {
+                    container.innerHTML = `<div class="status fail">❌ Cache API not supported</div>`;
+                }
+            }
+
+            testInstallation() {
+                this.checkInstallationStatus();
+                this.showAlert('Installation status updated!', 'info');
+            }
+
+            async triggerInstall() {
+                if ('serviceWorker' in navigator) {
+                    const registration = await navigator.serviceWorker.ready;
+
+                    // This would trigger the install prompt if available
+                    if (window.pwaInstallManager && window.pwaInstallManager.deferredPrompt) {
+                        await window.pwaInstallManager.installApp();
+                    } else {
+                        this.showAlert('Install prompt not available. Try installing manually.', 'info');
+                    }
+                }
+            }
+
+            async testNotification() {
+                if ('Notification' in window) {
+                    if (Notification.permission === 'granted') {
+                        const notification = new Notification('Pink Pilates Test', {
+                            body: 'This is a test notification from the PWA!',
+                            icon: '/images/icons/icon-192x192.png',
+                            badge: '/images/icons/icon-72x72.png',
+                            tag: 'pwa-test'
+                        });
+
+                        this.showAlert('Test notification sent!', 'pass');
+                    } else {
+                        this.showAlert('Notification permission not granted', 'fail');
+                    }
+                } else {
+                    this.showAlert('Notifications not supported', 'fail');
+                }
+            }
+
+            async requestNotificationPermission() {
+                if ('Notification' in window) {
+                    const permission = await Notification.requestPermission();
+                    const status = document.getElementById('notification-status');
+
+                    if (permission === 'granted') {
+                        status.innerHTML = '<div class="status pass">✅ Notification permission granted</div>';
+                        this.showAlert('Permission granted!', 'pass');
+                    } else {
+                        status.innerHTML = '<div class="status fail">❌ Notification permission denied</div>';
+                        this.showAlert('Permission denied', 'fail');
+                    }
+                }
+            }
+
+            simulateOffline() {
+                // Note: This only simulates the UI, not actual offline mode
+                // Use Chrome DevTools Network tab to actually go offline
+                const isOnline = !navigator.onLine;
+                if (isOnline) {
+                    this.showAlert('You are currently offline. Use Chrome DevTools Network tab to toggle offline mode.', 'info');
+                } else {
+                    this.showAlert('You are currently online. Use Chrome DevTools Network tab to simulate offline.', 'info');
+                }
+            }
+
+            showAlert(message, type) {
+                // Simple alert replacement
+                const alertDiv = document.createElement('div');
+                alertDiv.className = `status ${type}`;
+                alertDiv.textContent = message;
+                alertDiv.style.position = 'fixed';
+                alertDiv.style.top = '20px';
+                alertDiv.style.right = '20px';
+                alertDiv.style.zIndex = '9999';
+                alertDiv.style.maxWidth = '300px';
+
+                document.body.appendChild(alertDiv);
+
+                setTimeout(() => {
+                    alertDiv.remove();
+                }, 3000);
+            }
+
+            setupEventListeners() {
+                window.addEventListener('online', () => {
+                    this.checkConnectivity();
+                    this.showAlert('Back online!', 'pass');
+                });
+
+                window.addEventListener('offline', () => {
+                    this.checkConnectivity();
+                    this.showAlert('You are offline', 'info');
+                });
+            }
+        }
+
+        // Initialize the test suite
+        const pwaTester = new PWATester();
+
+        // Global functions for button clicks
+        window.testServiceWorker = () => pwaTester.testServiceWorker();
+        window.clearCache = () => pwaTester.clearCache();
+        window.testInstallation = () => pwaTester.testInstallation();
+        window.triggerInstall = () => pwaTester.triggerInstall();
+        window.showCacheContents = () => pwaTester.showCacheContents();
+        window.testNotification = () => pwaTester.testNotification();
+        window.requestNotificationPermission = () => pwaTester.requestNotificationPermission();
+        window.simulateOffline = () => pwaTester.simulateOffline();
+    </script>
+</body>
+</html>
