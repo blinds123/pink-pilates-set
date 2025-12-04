@@ -245,6 +245,96 @@ html,body{overflow-x:hidden;max-width:100vw}
 
 @keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
 @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(232,180,184,0.4)}50%{box-shadow:0 0 0 10px rgba(232,180,184,0)}}
+
+/* Mobile Menu Styles */
+@media (max-width: 768px) {
+  .mobile-menu-toggle {
+    display: flex !important;
+  }
+
+  nav {
+    position: fixed;
+    top: 0;
+    right: -100%;
+    width: 80%;
+    height: 100vh;
+    background: #fff;
+    box-shadow: -2px 0 10px rgba(0,0,0,0.1);
+    transition: right 0.3s ease;
+    z-index: 1000;
+    padding: 80px 20px 20px;
+  }
+
+  nav.active {
+    right: 0;
+  }
+
+  nav ul {
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  /* Improve button sizes for touch */
+  button, .btn, a {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Size selector mobile */
+  #size-selector {
+    gap: 12px;
+  }
+
+  .size-btn {
+    min-width: 60px !important;
+    min-height: 60px !important;
+    font-size: 18px !important;
+  }
+
+  /* Worn by favorites mobile - smaller grid */
+  .celebrity-card {
+    padding: 20px !important;
+  }
+
+  /* Mobile stack product layout */
+  .product-hero {
+    grid-template-columns: 1fr !important;
+    gap: 30px !important;
+    padding: 20px 16px !important;
+  }
+}
+
+/* Accordion Styles */
+.accordion-item.open .accordion-content {
+  max-height: 500px !important;
+  padding: 0 !important;
+}
+
+.accordion-item.open .accordion-icon {
+  transform: rotate(180deg) !important;
+}
+
+.size-btn.selected {
+  background: #E8B4B8 !important;
+  color: #fff !important;
+}
+
+.size-btn:hover {
+  background: #fdf5f6 !important;
+  transform: scale(1.05);
+}
+
+/* Add to cart button animation */
+@keyframes addToCart {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.adding-to-cart {
+  animation: addToCart 0.6s ease;
+}
+
 </style>
 
 <!-- Prefetch Additional Images -->
@@ -828,7 +918,27 @@ html,body{overflow-x:hidden;max-width:100vw}
           <span class="old-price">$205</span>
           <span class="badge">71% OFF</span>
         </div>
+        
         <div style="color:#E8B4B8;font-size:14px;font-weight:600;margin-bottom:20px">1,247 sets sold this week</div>
+
+        <!-- Size Selector -->
+        <div style="margin-bottom:24px">
+          <label style="display:block;font-size:14px;font-weight:600;color:#333;margin-bottom:12px">Select Size:</label>
+          <div style="display:flex;gap:8px;flex-wrap:wrap" id="size-selector">
+            <button onclick="selectSize('XS')" data-size="XS" class="size-btn" style="min-width:48px;height:48px;border:2px solid #E8B4B8;background:#fff;color:#333;border-radius:8px;font-weight:600;cursor:pointer;transition:all 0.3s">XS</button>
+            <button onclick="selectSize('S')" data-size="S" class="size-btn" style="min-width:48px;height:48px;border:2px solid #E8B4B8;background:#fff;color:#333;border-radius:8px;font-weight:600;cursor:pointer;transition:all 0.3s">S</button>
+            <button onclick="selectSize('M')" data-size="M" class="size-btn" style="min-width:48px;height:48px;border:2px solid #E8B4B8;background:#fff;color:#333;border-radius:8px;font-weight:600;cursor-pointer;transition:all 0.3s">M</button>
+            <button onclick="selectSize('L')" data-size="L" class="size-btn" style="min-width:48px;height:48px;border:2px solid #E8B4B8;background:#fff;color:#333;border-radius:8px;font-weight:600;cursor:pointer;transition:all 0.3s">L</button>
+            <button onclick="selectSize('XL')" data-size="XL" class="size-btn" style="min-width:48px;height:48px;border:2px solid #E8B4B8;background:#fff;color:#333;border-radius:8px;font-weight:600;cursor:pointer;transition:all 0.3s">XL</button>
+          </div>
+        </div>
+
+        <!-- Stock Indicator -->
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:20px;color:#E8B4B8;font-weight:500">
+          <svg width="16" height="16"><circle cx="8" cy="8" r="6" fill="#E8B4B8"/></svg>
+          <span>In Stock - Ships within 24 hours</span>
+        </div>
+    
 
         <button class="cta-btn cta-primary fade-in visible" id="primaryCTA" onclick="handleAddToCart('primary')">
           GET MY SET NOW - $59
@@ -2746,5 +2856,139 @@ window.addEventListener('offline', () => {
 <!-- PWA Installation Manager -->
 <script src="/pwa-install.js"></script>
 
-</script></body>
+</script>
+    <script>
+    // Accordion functionality
+    function toggleAccordion(tabName) {
+      const item = document.querySelector(`[data-tab="${tabName}"]`);
+      const content = document.getElementById(`${tabName}-content`);
+      const icon = document.getElementById(`${tabName}-icon`);
+
+      // Close all other accordions
+      document.querySelectorAll('.accordion-item').forEach(acc => {
+        if (acc !== item) {
+          acc.classList.remove('open');
+          const otherContent = acc.querySelector('.accordion-content');
+          const otherIcon = acc.querySelector('.accordion-icon');
+          if (otherContent) otherContent.style.maxHeight = '0';
+          if (otherIcon) otherIcon.style.transform = 'rotate(0)';
+        }
+      });
+
+      // Toggle current accordion
+      if (item.classList.contains('open')) {
+        item.classList.remove('open');
+        content.style.maxHeight = '0';
+        icon.style.transform = 'rotate(0)';
+      } else {
+        item.classList.add('open');
+        content.style.maxHeight = content.scrollHeight + 'px';
+        icon.style.transform = 'rotate(180deg)';
+      }
+    }
+
+    // Size selector functionality
+    let selectedSize = null;
+
+    function selectSize(size) {
+      selectedSize = size;
+
+      // Update button states
+      document.querySelectorAll('.size-btn').forEach(btn => {
+        if (btn.dataset.size === size) {
+          btn.classList.add('selected');
+          btn.style.background = '#E8B4B8';
+          btn.style.color = '#fff';
+        } else {
+          btn.classList.remove('selected');
+          btn.style.background = '#fff';
+          btn.style.color = '#333';
+        }
+      });
+
+      // Track size selection
+      if (typeof fbq !== 'undefined') {
+        fbq('trackCustom', 'SizeSelected', {size: size});
+      }
+    }
+
+    // Mobile menu toggle
+    function toggleMobileMenu() {
+      const nav = document.querySelector('nav');
+      nav.classList.toggle('active');
+
+      // Prevent body scroll when menu is open
+      if (nav.classList.contains('active')) {
+        document.body.style.overflow = 'hidden';
+      } else {
+        document.body.style.overflow = 'auto';
+      }
+    }
+
+    // Add to cart functionality
+    function addToCart() {
+      if (!selectedSize) {
+        alert('Please select a size');
+        return;
+      }
+
+      const btn = event.target;
+      btn.classList.add('adding-to-cart');
+      btn.innerHTML = '<span>Adding...</span>';
+
+      // Simulate adding to cart
+      setTimeout(() => {
+        btn.innerHTML = '<span>✓ Added to Cart</span>';
+        btn.style.background = '#4CAF50';
+
+        // Track AddToCart event
+        if (typeof fbq !== 'undefined') {
+          fbq('track', 'AddToCart', {
+            content_name: 'Pink Pilates Set',
+            content_ids: ['pink-pilates-set'],
+            content_type: 'product',
+            value: 59.99,
+            currency: 'USD'
+          });
+        }
+
+        // Reset button after 2 seconds
+        setTimeout(() => {
+          btn.classList.remove('adding-to-cart');
+          btn.innerHTML = '<span class="btn-text">Add to Cart</span>';
+          btn.style.background = '#E8B4B8';
+        }, 2000);
+      }, 1000);
+    }
+
+    // Buy now functionality
+    function buyNow() {
+      if (!selectedSize) {
+        alert('Please select a size');
+        return;
+      }
+
+      // Track purchase initiation
+      if (typeof fbq !== 'undefined') {
+        fbq('track', 'InitiateCheckout', {
+          content_name: 'Pink Pilates Set',
+          content_ids: ['pink-pilates-set'],
+          content_type: 'product',
+          value: 59.99,
+          currency: 'USD'
+        });
+      }
+
+      // Redirect to checkout (implement your checkout flow)
+      window.location.href = '/checkout';
+    }
+
+    // Initialize first accordion open
+    document.addEventListener('DOMContentLoaded', function() {
+      // Open shipping tab by default
+      setTimeout(() => toggleAccordion('shipping'), 500);
+    });
+    </script>
+    
+</body>
 </html>

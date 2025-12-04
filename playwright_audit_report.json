@@ -1,0 +1,155 @@
+{
+  "timestamp": "2025-12-04T13:27:25.306383",
+  "url": "https://pink-pilates-set.netlify.app",
+  "issues": [
+    {
+      "type": "accordion_no_tabs",
+      "severity": "high",
+      "description": "Accordion section found but no tabs"
+    },
+    {
+      "type": "worn_by_broken_images",
+      "severity": "high",
+      "description": "13 broken celebrity images",
+      "broken_images": [
+        {
+          "index": 0,
+          "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 3'%3E%3C/svg%3E",
+          "alt": "Adhesive Bra Cups"
+        },
+        {
+          "index": 1,
+          "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 3'%3E%3C/svg%3E",
+          "alt": "Seamless Thong"
+        },
+        {
+          "index": 2,
+          "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 3'%3E%3C/svg%3E",
+          "alt": "Non-Slip Pilates Socks"
+        },
+        {
+          "index": 9,
+          "src": "./images/testimonials/testimonial-01.jpeg",
+          "alt": "Review photo from Sarah K."
+        },
+        {
+          "index": 10,
+          "src": "./images/testimonials/testimonial-02.jpeg",
+          "alt": "Review photo from Emma L."
+        },
+        {
+          "index": 11,
+          "src": "./images/testimonials/testimonial-03.jpeg",
+          "alt": "Review photo from Mia R."
+        },
+        {
+          "index": 12,
+          "src": "./images/testimonials/testimonial-04.jpeg",
+          "alt": "Review photo from Olivia T."
+        },
+        {
+          "index": 13,
+          "src": "./images/testimonials/testimonial-05.jpeg",
+          "alt": "Review photo from Ava M."
+        },
+        {
+          "index": 14,
+          "src": "./images/testimonials/testimonial-06.jpeg",
+          "alt": "Review photo from Isabella C."
+        },
+        {
+          "index": 15,
+          "src": "./images/testimonials/testimonial-07.jpeg",
+          "alt": "Review photo from Sophie W."
+        },
+        {
+          "index": 16,
+          "src": "./images/testimonials/testimonial-08.jpeg",
+          "alt": "Review photo from Charlotte D."
+        },
+        {
+          "index": 17,
+          "src": "./images/testimonials/testimonial-09.jpeg",
+          "alt": "Review photo from Amelia S."
+        },
+        {
+          "index": 18,
+          "src": "./images/testimonials/testimonial-10.jpeg",
+          "alt": "Review photo from Harper J."
+        }
+      ],
+      "loaded_images": [
+        {
+          "index": 3,
+          "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 3 4'%3E%3C/svg%3E",
+          "alt": "Pink Pilates Set - Ballet Wrap, Flare Pants & Pixi Bra"
+        },
+        {
+          "index": 4,
+          "src": "/images/product/product-01.jpeg",
+          "alt": "Pink Pilates Set view 1"
+        },
+        {
+          "index": 5,
+          "src": "/images/product/product-02.jpeg",
+          "alt": "Pink Pilates Set view 2"
+        },
+        {
+          "index": 6,
+          "src": "/images/product/product-03.jpeg",
+          "alt": "Pink Pilates Set view 3"
+        },
+        {
+          "index": 7,
+          "src": "/images/product/product-04.jpeg",
+          "alt": "Pink Pilates Set view 4"
+        },
+        {
+          "index": 8,
+          "src": "/images/product/product-05.jpeg",
+          "alt": "Pink Pilates Set view 5"
+        }
+      ]
+    },
+    {
+      "type": "fashion_layout_incomplete",
+      "severity": "high",
+      "description": "Missing 5 fashion e-commerce elements",
+      "missing": [
+        "product_gallery",
+        "size_selector",
+        "add_to_cart",
+        "product_description",
+        "fashion_imaging"
+      ]
+    }
+  ],
+  "screenshots": {
+    "accordion": {
+      "path": "/Users/nelsonchan/Downloads/pink ballet wrap/audit_accordion_20251204_132717.png",
+      "description": "Accordion section",
+      "timestamp": "20251204_132717"
+    },
+    "worn_by_favorites": {
+      "path": "/Users/nelsonchan/Downloads/pink ballet wrap/audit_worn_by_favorites_20251204_132718.png",
+      "description": "Worn by Favorites section",
+      "timestamp": "20251204_132718"
+    },
+    "mobile_view": {
+      "path": "/Users/nelsonchan/Downloads/pink ballet wrap/audit_mobile_view_20251204_132724.png",
+      "description": "Mobile view",
+      "timestamp": "20251204_132724"
+    },
+    "full_page_fashion": {
+      "path": "/Users/nelsonchan/Downloads/pink ballet wrap/audit_full_page_fashion_20251204_132724.png",
+      "description": "Fashion layout review",
+      "timestamp": "20251204_132724"
+    }
+  },
+  "summary": {
+    "total_issues": 3,
+    "critical_issues": 3,
+    "medium_issues": 0,
+    "low_issues": 0
+  }
+}
